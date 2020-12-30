@@ -64,7 +64,8 @@ class InteractivePlayer(BasePlayer):
 
     def respond_to_attack(self, coordinates: Coordinates) -> AttackResponse:
         print(f"You were attacked at row {coordinates.vertical} and column {coordinates.horizontal}")
-        print("Enter the input fitting for the result:")
+        print("Enter the input fitting for the result:  (Note: An attack on a previous hit is considered a miss, "
+              "and also an out-of-bounds attack)")
         for response, response_value in AttackResponse.__members__.items():
             print(f"{response}: {response_value}")
         while (attack_response := self._parse_attack_response()) is None:
