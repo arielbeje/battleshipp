@@ -78,7 +78,7 @@ class AttackResponseMessage:
     _struct_format = "!B"
 
     def __init__(self, response: AttackResponse):
-        self.response = AttackResponse
+        self.response = response
 
     def send_to_socket(self, socket_: socket):
         encoded_message = struct.pack(self._struct_format, self.response.value)
@@ -87,5 +87,5 @@ class AttackResponseMessage:
     @classmethod
     def recv_from_socket(cls, socket_: socket):
         encoded_response = socket_.recv(struct.calcsize(cls._struct_format))
-        response_value = struct.unpack(cls._struct_format, encoded_response)
+        response_value, *_ = struct.unpack(cls._struct_format, encoded_response)
         return cls(AttackResponse(response_value))
