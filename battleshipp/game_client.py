@@ -64,15 +64,9 @@ class GameClient:
         try:
             while self._connection.fileno() != _CLOSED_SOCKET_FILENO:
                 if should_attack:
-                    attack_response = self._send_attack()
+                    attack_response = self._send_attacks()
                 else:
-                    attack_response = self._receive_attack()
-
-                if attack_response in (protocol.AttackResponse.HIT, protocol.AttackResponse.DISABLED_SHIP):
-                    if should_attack:
-                        attack_response = self._send_attack()
-                    else:
-                        attack_response = self._receive_attack()
+                    attack_response = self._receive_attacks()
 
                 if attack_response == protocol.AttackResponse.GAME_END:
                     self._connection.close()
@@ -82,9 +76,9 @@ class GameClient:
         except ConnectionResetError:
             print("Game ended. You are the winner!")
 
-    def _receive_attack(self):
+    def _receive_attacks(self):
         """
-        Receive an attack from the game's connection.
+        Receive attacks from the game's connection, until an attack doesn't hit. Return the latest response.
         :return: The attack's result
         """
 
@@ -92,11 +86,14 @@ class GameClient:
         attack_response = self._player.respond_to_attack(attack_message.coordinates)
         protocol.AttackResponseMessage(attack_response).send_to_socket(self._connection)
 
+        while attack_response in (protocol.AttackResponse.HIT, protocol.AttackResponse.DISABLED_SHIP):
+            attack_response = self._receive_attacks()
+
         return attack_response
 
-    def _send_attack(self):
+    def _send_attacks(self):
         """
-        Send an attack through the game's connection.
+        Send attacks through the game's connection, until the attack doesn't hit. Return the latest response.
         :return: The attack's response
         """
 
@@ -104,5 +101,8 @@ class GameClient:
         protocol.AttackMessage(attack_coordinates).send_to_socket(self._connection)
         attack_response = protocol.AttackResponseMessage.recv_from_socket(self._connection).response
         self._player.process_attack_result(attack_coordinates, attack_response)
+
+        while attack_response in (protocol.AttackResponse.HIT, protocol.AttackResponse.DISABLED_SHIP):
+            attack_response = self._send_attacks()
 
         return attack_response
