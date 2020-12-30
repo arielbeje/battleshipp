@@ -21,7 +21,7 @@ class GameClient:
         protocol.GameStartMessage().send_to_socket(connection)
 
         self._wait_for_start_response(connection)
-        self._attack_loop()
+        self._attack_loop(attacking_first=True)
 
     def run_passive(self, connection: socket.socket):
         self._connection = connection
@@ -31,7 +31,7 @@ class GameClient:
         protocol.GameStartMessage().send_to_socket(connection)
 
         self._wait_for_start_response(connection)
-        self._attack_loop()
+        self._attack_loop(attacking_first=False)
 
     def _wait_for_start_response(self, connection):
         """
@@ -45,8 +45,8 @@ class GameClient:
             raise InvalidStartMessageError(f"Expected a value of {hex(protocol.GAME_START_CONSTANT)}, "
                                            f"got {received_game_start_message.value}")
 
-    def _attack_loop(self):
-        should_receive_attack = True
+    def _attack_loop(self, attacking_first: bool):
+        should_receive_attack = not attacking_first
         while self._connection.fileno() != _CLOSED_SOCKET_FILENO:
             if should_receive_attack:
                 attack_response = self._receive_attacks()
