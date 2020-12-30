@@ -67,8 +67,9 @@ class InteractivePlayer(BasePlayer):
         print("Enter the input fitting for the result:")
         for response, response_value in AttackResponse.__members__.items():
             print(f"{response}: {response_value}")
-        user_response = input()
-        return AttackResponse(int(user_response))
+        while (attack_response := self._parse_attack_response()) is None:
+            print("Invalid input. Please try again.")
+        return attack_response
 
     def process_attack_result(self, coordinates: Coordinates, response: AttackResponse):
         print(f"You last attack resulted in {str(response)}")
