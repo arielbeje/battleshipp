@@ -10,7 +10,7 @@ Range = NamedTuple("Range", (("min", int), ("max", int)))
 BOARD_ROW_RANGE = Range(1, 10)
 BOARD_COLUMN_RANGE = Range(1, 10)
 
-PORT = 1337
+PORT = 25565
 
 Coordinates = NamedTuple("Coordinates", (("vertical", int), ("horizontal", int)))
 
