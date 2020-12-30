@@ -14,6 +14,11 @@ class GameClient:
         self._connection = None
 
     def run_active(self, connection: socket.socket, ship_sizes: Sequence[int]):
+        """
+        Run an active game client, which will send the given configuration to the connection and start a game.
+        The client's player will attack first.
+        """
+
         self._connection = connection
         self._player.initialize_board(ship_sizes)
 
@@ -24,6 +29,11 @@ class GameClient:
         self._attack_loop(attacking_first=True)
 
     def run_passive(self, connection: socket.socket):
+        """
+        Run a passive game client, which will wait to receive a game configuration from the connection.
+        The client's player will attack second.
+        """
+
         self._connection = connection
 
         ship_sizes = protocol.GameConfigMessage.recv_from_socket(connection).ship_sizes
@@ -46,24 +56,28 @@ class GameClient:
                                            f"got {received_game_start_message.value}")
 
     def _attack_loop(self, attacking_first: bool):
-        should_receive_attack = not attacking_first
+        """
+        The game's attack loop. Will handle sending and receiving attacks in the correct order.
+        """
+
+        should_attack = attacking_first
         while self._connection.fileno() != _CLOSED_SOCKET_FILENO:
-            if should_receive_attack:
-                attack_response = self._receive_attacks()
-            else:
+            if should_attack:
                 attack_response = self._send_attacks()
+            else:
+                attack_response = self._receive_attacks()
 
             if attack_response in (protocol.AttackResponse.HIT, protocol.AttackResponse.DISABLED_SHIP):
-                if should_receive_attack:
-                    attack_response = self._receive_attacks()
-                else:
+                if should_attack:
                     attack_response = self._send_attacks()
+                else:
+                    attack_response = self._receive_attacks()
 
             if attack_response == protocol.AttackResponse.GAME_END:
                 self._connection.close()
                 break
 
-            should_receive_attack = not should_receive_attack
+            should_attack = not should_attack
 
     def _receive_attacks(self):
         """

@@ -22,6 +22,11 @@ class BasePlayer:
 
 
 class InteractivePlayer(BasePlayer):
+    """
+    An interactive player, which uses the console for I/O.
+    This object does not hold any state, and relies on the player using the console to manage the board.
+    """
+
     def initialize_board(self, ship_sizes: Sequence[int]):
         print(f"Place the ships on your board. Available ship sizes: {', '.join(str(size) for size in ship_sizes)}")
 
