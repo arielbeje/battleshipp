@@ -26,7 +26,7 @@ class GameClient:
         protocol.GameStartMessage().send_to_socket(connection)
 
         self._wait_for_start_response(connection)
-        self._attack_loop(attacking_first=True)
+        self._attack_loop(attacking_first=False)
 
     def run_passive(self, connection: socket.socket):
         """
@@ -41,7 +41,7 @@ class GameClient:
         protocol.GameStartMessage().send_to_socket(connection)
 
         self._wait_for_start_response(connection)
-        self._attack_loop(attacking_first=False)
+        self._attack_loop(attacking_first=True)
 
     def _wait_for_start_response(self, connection):
         """
