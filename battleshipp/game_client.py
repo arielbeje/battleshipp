@@ -61,23 +61,26 @@ class GameClient:
         """
 
         should_attack = attacking_first
-        while self._connection.fileno() != _CLOSED_SOCKET_FILENO:
-            if should_attack:
-                attack_response = self._send_attack()
-            else:
-                attack_response = self._receive_attack()
-
-            if attack_response in (protocol.AttackResponse.HIT, protocol.AttackResponse.DISABLED_SHIP):
+        try:
+            while self._connection.fileno() != _CLOSED_SOCKET_FILENO:
                 if should_attack:
                     attack_response = self._send_attack()
                 else:
                     attack_response = self._receive_attack()
 
-            if attack_response == protocol.AttackResponse.GAME_END:
-                self._connection.close()
-                break
+                if attack_response in (protocol.AttackResponse.HIT, protocol.AttackResponse.DISABLED_SHIP):
+                    if should_attack:
+                        attack_response = self._send_attack()
+                    else:
+                        attack_response = self._receive_attack()
 
-            should_attack = not should_attack
+                if attack_response == protocol.AttackResponse.GAME_END:
+                    self._connection.close()
+                    break
+
+                should_attack = not should_attack
+        except ConnectionResetError:
+            print("Game ended. You are the winner!")
 
     def _receive_attack(self):
         """
