@@ -6,6 +6,10 @@ from typing import NamedTuple, Sequence
 _NETWORK_BYTE_ORDER = "big"
 GAME_START_CONSTANT = 0xFF
 
+Range = NamedTuple("Range", (("min", int), ("max", int)))
+BOARD_ROW_RANGE = Range(1, 10)
+BOARD_COLUMN_RANGE = Range(1, 10)
+
 Coordinates = NamedTuple("Coordinates", (("vertical", int), ("horizontal", int)))
 
 
@@ -44,7 +48,7 @@ class GameStartMessage:
 
     @classmethod
     def recv_from_socket(cls, socket_: socket):
-        value = int.from_bytes(socket.recv(1), byteorder=_NETWORK_BYTE_ORDER, signed=False)
+        value = int.from_bytes(socket_.recv(1), byteorder=_NETWORK_BYTE_ORDER, signed=False)
         return cls(value)
 
 
@@ -64,7 +68,9 @@ class AttackMessage:
     @classmethod
     def recv_from_socket(cls, socket_: socket):
         struct_size = struct.calcsize(cls._struct_format)
-        coordinates, *_ = struct.unpack(cls._struct_format, socket_.recv(struct_size))
+        coordinates_byte, *_ = struct.unpack(cls._struct_format, socket_.recv(struct_size))
+        coordinates = Coordinates(coordinates_byte >> cls._vertical_bit_shift,
+                                  coordinates_byte & (0b11111111 >> cls._vertical_bit_shift))
         return cls(coordinates)
 
 
