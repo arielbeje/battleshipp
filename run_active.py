@@ -1,5 +1,4 @@
-from battleshipp.player import InteractivePlayer
-from battleshipp.game_client import GameClient
+from battleshipp import GameClient, InteractivePlayer
 from battleshipp.protocol import PORT as PROTOCOL_PORT
 from battleshipp.game_defaults import SHIP_SIZES
 import socket
