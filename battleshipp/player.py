@@ -59,10 +59,12 @@ class InteractivePlayer(BasePlayer):
     def respond_to_attack(self, coordinates: Coordinates) -> AttackResponse:
         print(f"You were attacked at row {coordinates.vertical} and column {coordinates.horizontal}")
         print("Enter the input fitting for the result:")
-        for response in AttackResponse:
-            print(f"{AttackResponse(response)}: {response.value}")
+        for response, response_value in AttackResponse.__members__.items():
+            print(f"{response}: {response_value}")
         user_response = input()
         return AttackResponse(int(user_response))
 
     def process_attack_result(self, coordinates: Coordinates, response: AttackResponse):
-        print(f"You last attack resulted in {response}")
+        print(f"You last attack resulted in {str(response)}")
+        if response == AttackResponse.GAME_END:
+            print("The game ended. You won!")
