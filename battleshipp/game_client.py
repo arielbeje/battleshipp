@@ -63,15 +63,15 @@ class GameClient:
         should_attack = attacking_first
         while self._connection.fileno() != _CLOSED_SOCKET_FILENO:
             if should_attack:
-                attack_response = self._send_attacks()
+                attack_response = self._send_attack()
             else:
-                attack_response = self._receive_attacks()
+                attack_response = self._receive_attack()
 
             if attack_response in (protocol.AttackResponse.HIT, protocol.AttackResponse.DISABLED_SHIP):
                 if should_attack:
-                    attack_response = self._send_attacks()
+                    attack_response = self._send_attack()
                 else:
-                    attack_response = self._receive_attacks()
+                    attack_response = self._receive_attack()
 
             if attack_response == protocol.AttackResponse.GAME_END:
                 self._connection.close()
@@ -79,7 +79,7 @@ class GameClient:
 
             should_attack = not should_attack
 
-    def _receive_attacks(self):
+    def _receive_attack(self):
         """
         Receive an attack from the game's connection.
         :return: The attack's result
@@ -91,7 +91,7 @@ class GameClient:
 
         return attack_response
 
-    def _send_attacks(self):
+    def _send_attack(self):
         """
         Send an attack through the game's connection.
         :return: The attack's response
