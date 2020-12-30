@@ -29,6 +29,7 @@ class InteractivePlayer(BasePlayer):
 
     def initialize_board(self, ship_sizes: Sequence[int]):
         print(f"Place the ships on your board. Available ship sizes: {', '.join(str(size) for size in ship_sizes)}")
+        input("Press enter when you're done.")
 
     def _parse_attack_coordinates(self):
         attack_input = input().split(",")
