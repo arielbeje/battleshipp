@@ -42,15 +42,20 @@ class GameConfigMessage:
 
 
 class GameStartMessage:
+    _struct_format = "!B"
+
     def __init__(self, value: int = GAME_START_CONSTANT):
         self.value = value
 
     def send_to_socket(self, socket_: socket):
-        socket_.sendall(int.to_bytes(self.value, length=1, byteorder=_NETWORK_BYTE_ORDER))
+        struct_size = struct.calcsize(self.__class__._struct_format)
+        socket_.sendall(
+            int.to_bytes(self.value, length=struct_size, byteorder=_NETWORK_BYTE_ORDER, signed=False))
 
     @classmethod
     def recv_from_socket(cls, socket_: socket):
-        value = int.from_bytes(socket_.recv(1), byteorder=_NETWORK_BYTE_ORDER, signed=False)
+        struct_size = struct.calcsize(cls._struct_format)
+        value = int.from_bytes(socket_.recv(struct_size), byteorder=_NETWORK_BYTE_ORDER, signed=False)
         return cls(value)
 
 
